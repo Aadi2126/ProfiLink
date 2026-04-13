@@ -982,37 +982,37 @@ body {
 .theme-forest { --cover: linear-gradient(135deg,#0e2a0e,#1a2a0e); }
 
 /* ── UI COLOR THEMES ── */
-body.ui-pink {
+.profile-page.ui-pink, .liveview-page.ui-pink {
   --bg:#fff0f5;--surface:#ffe4ee;--surface2:#ffd0e3;--surface3:#ffc2da;
   --border:rgba(255,105,150,0.15);--border2:rgba(255,105,150,0.3);
   --text:#3a0a1e;--muted:rgba(58,10,30,0.4);--muted2:rgba(58,10,30,0.65);
   --accent:#e8267a;--accent2:#c41864;--accent-glow:rgba(232,38,122,0.18);
 }
-body.ui-off-black {
+.profile-page.ui-off-black, .liveview-page.ui-off-black {
   --bg:#111010;--surface:#1c1b1b;--surface2:#252323;--surface3:#2d2b2b;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
   --text:#f0ede8;--muted:rgba(240,237,232,0.38);--muted2:rgba(240,237,232,0.62);
   --accent:#f26c1b;--accent2:#d95910;--accent-glow:rgba(242,108,27,0.22);
 }
-body.ui-red-black {
+.profile-page.ui-red-black, .liveview-page.ui-red-black {
   --bg:#0d0000;--surface:#1a0000;--surface2:#220000;--surface3:#2b0101;
   --border:rgba(255,60,60,0.1);--border2:rgba(255,60,60,0.2);
   --text:#ffe8e8;--muted:rgba(255,232,232,0.38);--muted2:rgba(255,232,232,0.62);
   --accent:#e0312a;--accent2:#c01f19;--accent-glow:rgba(224,49,42,0.22);
 }
-body.ui-orange-teal {
+.profile-page.ui-orange-teal, .liveview-page.ui-orange-teal {
   --bg:#07100f;--surface:#0e1b19;--surface2:#152422;--surface3:#1b2e2c;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
   --text:#ecf8f7;--muted:rgba(236,248,247,0.38);--muted2:rgba(236,248,247,0.62);
   --accent:#f07030;--accent2:#d55a1c;--accent-glow:rgba(240,112,48,0.2);
 }
-body.ui-brown {
+.profile-page.ui-brown, .liveview-page.ui-brown {
   --bg:#1a0f07;--surface:#271708;--surface2:#32200c;--surface3:#3d2910;
   --border:rgba(255,200,140,0.1);--border2:rgba(255,200,140,0.2);
   --text:#ffecd6;--muted:rgba(255,236,214,0.38);--muted2:rgba(255,236,214,0.62);
   --accent:#c4833a;--accent2:#a86929;--accent-glow:rgba(196,131,58,0.22);
 }
-body.ui-bw {
+.profile-page.ui-bw, .liveview-page.ui-bw {
   --bg:#080808;--surface:#111111;--surface2:#1a1a1a;--surface3:#222222;
   --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.16);
   --text:#f5f5f5;--muted:rgba(245,245,245,0.38);--muted2:rgba(245,245,245,0.62);
@@ -2332,6 +2332,7 @@ async function afterLogin(user) {
     state.about = profile.about || state.about;
     state.igUrl = profile.ig_url || state.igUrl;
     state.theme = profile.theme || state.theme;
+    state.uiTheme = profile.ui_theme || '';
     if (profile.socials) state.socials = profile.socials;
     if (profile.links && profile.links.length) state.links = profile.links;
     if (profile.products && profile.products.length) state.products = profile.products;
@@ -2370,11 +2371,14 @@ async function saveProfile() {
     about: state.about,
     ig_url: state.igUrl,
     theme: state.theme,
+    ui_theme: state.uiTheme,
     socials: state.socials,
     links: state.links,
     products: state.products,
     work: state.work,
     custom_sections: state.customSections,
+    avatar_url: state.avatarSrc || null,
+    cover_url: state.coverSrc || null,
   });
   if (error) showToast('Error: ' + error.message);
   else showToast('Profile save ho gaya!');
@@ -2507,12 +2511,17 @@ function initEditor() {
 }
 
 function selectUITheme(id, el) {
-  // Remove all ui theme classes
-  document.body.className = document.body.className.replace(/\bui-\S+/g, '').trim();
-  if (id) document.body.classList.add(id);
   state.uiTheme = id;
+  // Apply only to profile preview containers, NOT body
+  [document.getElementById('preview-root'), document.getElementById('liveview-root')].forEach(root => {
+    if (!root) return;
+    const page = root.querySelector('.profile-page') || root;
+    page.className = page.className.replace(/\bui-\S+/g, '').trim();
+    if (id) page.classList.add(id);
+  });
   document.querySelectorAll('.ui-theme-swatch').forEach(s => s.classList.remove('selected'));
   el.classList.add('selected');
+  renderPreview();
   showToast('🎨 Color theme applied!');
 }
 
@@ -3033,9 +3042,17 @@ function setProfileTab(tab, el) {
 
 function renderPreview() {
   const root = document.getElementById('preview-root');
-  if (root) root.innerHTML = buildProfileHTML(true);
+  if (root) {
+    root.innerHTML = buildProfileHTML(true);
+    // Apply uiTheme to profile-page inside preview
+    const pp = root.querySelector('.profile-page');
+    if (pp && state.uiTheme) pp.classList.add(state.uiTheme);
+  }
   const lvRoot = document.getElementById('liveview-root');
-  if (lvRoot && document.getElementById('liveview').style.display !== 'none') lvRoot.innerHTML = buildProfileHTML(false);
+  if (lvRoot && document.getElementById('liveview').style.display !== 'none') {
+    lvRoot.innerHTML = buildProfileHTML(false);
+    if (state.uiTheme) lvRoot.classList.add(state.uiTheme);
+  }
   // Update liveview url
   const lvUrl = document.getElementById('lv-url');
   if (lvUrl) lvUrl.textContent = `${window.location.origin}/@${state.handle}`;
