@@ -2073,7 +2073,7 @@ body.ui-bw {
           <label class="field-label">Username / Handle</label>
           <div style="display:flex; align-items:center; gap:0;">
             <span style="background:var(--surface3); border:1px solid var(--border); border-right:none; border-radius:10px 0 0 10px; padding:10px 12px; font-size:0.85rem; color:var(--muted);">@</span>
-            <input class="field-input" id="f-handle" placeholder="yourname" value="aadi" oninput="updatePreview()" style="border-radius:0 10px 10px 0;">
+            <input class="field-input" id="f-handle" placeholder="yourname" value="aadi" oninput="sanitizeHandle(this); updatePreview()" style="border-radius:0 10px 10px 0;">
           </div>
         </div>
 
@@ -3071,13 +3071,23 @@ function showToast(msg) {
 }
 
 // Init on load
+// ── SANITIZE HANDLE ──
+function sanitizeHandle(input) {
+  const clean = input.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (input.value !== clean) {
+    const pos = input.selectionStart;
+    input.value = clean;
+    input.setSelectionRange(pos, pos);
+  }
+}
+
 // ── ROUTING & INITIALIZATION ──
 window.addEventListener('DOMContentLoaded', async () => {
   const path = window.location.pathname.replace('/', '');
 
   // 1. Check if it's a public profile link (e.g., /@aadi)
   if (path.startsWith('@')) {
-    const username = path.replace('@', '');
+    const username = decodeURIComponent(path.replace('@', '')).toLowerCase().replace(/[^a-z0-9]/g, '');
     initPublicProfile(username);
   } else {
     // 2. Normal App Logic (Editor/Landing)
