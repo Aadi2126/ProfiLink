@@ -3071,20 +3071,88 @@ function showToast(msg) {
 }
 
 // Init on load
+// ── ROUTING & INITIALIZATION ──
 window.addEventListener('DOMContentLoaded', async () => {
+  const path = window.location.pathname.replace('/', '');
+
+  // 1. Check if it's a public profile link (e.g., /@aadi)
+  if (path.startsWith('@')) {
+    const username = path.replace('@', '');
+    initPublicProfile(username);
+  } else {
+    // 2. Normal App Logic (Editor/Landing)
+    setupApp();
+  }
+});
+
+async function initPublicProfile(username) {
+  // Hide everything first
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-page').style.display = 'none';
+  document.getElementById('template-page').style.display = 'none';
+
+  // Show Loading or Liveview
+  const lv = document.getElementById('liveview');
+  lv.style.display = 'block';
+  const root = document.getElementById('liveview-root');
+  root.innerHTML = '<div class="empty-state">Loading Profile...</div>';
+
+  // Fetch from Supabase
+  const { data: profile, error } = await sb
+    .from('profiles')
+    .select('*')
+    .eq('username', username)
+    .single();
+
+  if (error || !profile) {
+    root.innerHTML = '<div class="empty-state"><h3>User not found 404</h3><p>Ye profile abhi bani nahi hai.</p></div>';
+    return;
+  }
+
+  // Update State with DB data
+  state.name = profile.name || '';
+  state.handle = profile.username || username;
+  state.bio = profile.bio || '';
+  state.tags = profile.tags || '';
+  state.about = profile.about || '';
+  state.igUrl = profile.ig_url || '';
+  state.theme = profile.theme || 'dark';
+  state.avatarSrc = profile.avatar_url || null;
+  state.coverSrc = profile.cover_url || null;
+  if (profile.socials) state.socials = profile.socials;
+  if (profile.links && profile.links.length) state.links = profile.links;
+  if (profile.products && profile.products.length) state.products = profile.products;
+  if (profile.work && profile.work.length) state.work = profile.work;
+  if (profile.custom_sections && profile.custom_sections.length) state.customSections = profile.custom_sections;
+
+  // Render using existing function
+  root.innerHTML = buildProfileHTML(false);
+
+  // Hide Edit button for visitors
+  const editBtn = document.querySelector('#liveview .btn-ghost');
+  if (editBtn) editBtn.style.display = 'none';
+
+  // Update page title
+  document.title = (state.name || username) + ' — ProfiLink';
+}
+
+async function setupApp() {
   setTimeout(() => selectTemplate('instagram'), 100);
+
   // Check if already logged in
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     await afterLogin(session.user);
   }
+
   // Handle OAuth redirect
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session && !state.currentUserId) {
       await afterLogin(session.user);
     }
   });
-});
+}
 </script>
 </body>
 </html>
