@@ -6,6 +6,7 @@
 <title>ProfiLink — Build Your Link in Bio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -2032,7 +2033,9 @@ body.ui-bw {
     <div class="app-logo"><span></span> ProfiLink</div>
     <div class="header-actions">
       <button class="btn-ghost" onclick="showLive()">👁 Preview</button>
-      <button class="btn-accent" onclick="copyLink()">Copy Link ✦</button>
+      <button class="btn-ghost" onclick="doLogout()">Logout</button>
+      <button class="btn-ghost" onclick="copyLink()">Copy Link</button>
+      <button class="btn-accent" onclick="saveProfile()">Save Profile ✦</button>
     </div>
   </header>
 
@@ -2312,44 +2315,123 @@ function switchAuthTab(tab) {
   }
 }
 
+// ── SUPABASE INIT ──
+const SUPABASE_URL = 'https://hzhpuelzllfnijsaciob.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tyiZSC3lN8A-sCF7-MJr6w_YhUopADh';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── AFTER LOGIN ──
+async function afterLogin(user) {
+  state.currentUserId = user.id;
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if (profile) {
+    state.name = profile.name || state.name;
+    state.handle = profile.username || state.handle;
+    state.bio = profile.bio || state.bio;
+    state.tags = profile.tags || state.tags;
+    state.about = profile.about || state.about;
+    state.igUrl = profile.ig_url || state.igUrl;
+    state.theme = profile.theme || state.theme;
+    if (profile.socials) state.socials = profile.socials;
+    if (profile.links && profile.links.length) state.links = profile.links;
+    if (profile.products && profile.products.length) state.products = profile.products;
+    if (profile.work && profile.work.length) state.work = profile.work;
+    if (profile.custom_sections && profile.custom_sections.length) state.customSections = profile.custom_sections;
+    showPage('app');
+    initEditor();
+    const nameEl = document.getElementById('f-name');
+    if (nameEl) nameEl.value = state.name;
+    const handleEl = document.getElementById('f-handle');
+    if (handleEl) handleEl.value = state.handle;
+    const bioEl = document.getElementById('f-bio');
+    if (bioEl) bioEl.value = state.bio;
+    readFields();
+    renderPreview();
+    showToast('Welcome back, ' + state.name + '!');
+  } else {
+    state.name = user.user_metadata?.full_name || user.email.split('@')[0];
+    state.handle = state.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    showPage('template-page');
+    setTimeout(() => selectTemplate('instagram'), 100);
+  }
+}
+
+// ── SAVE PROFILE ──
+async function saveProfile() {
+  if (!state.currentUserId) { showToast('Pehle login karo!'); return; }
+  readFields();
+  showToast('Saving...');
+  const { error } = await sb.from('profiles').upsert({
+    id: state.currentUserId,
+    username: state.handle,
+    name: state.name,
+    bio: state.bio,
+    tags: state.tags,
+    about: state.about,
+    ig_url: state.igUrl,
+    theme: state.theme,
+    socials: state.socials,
+    links: state.links,
+    products: state.products,
+    work: state.work,
+    custom_sections: state.customSections,
+  });
+  if (error) showToast('Error: ' + error.message);
+  else showToast('Profile save ho gaya!');
+}
+
+// ── LOGOUT ──
+async function doLogout() {
+  await sb.auth.signOut();
+  state.currentUserId = null;
+  showPage('landing');
+  showToast('Logged out!');
+}
+
 // ── LOGIN ──
-function doLogin() {
+async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   const errEl = document.getElementById('login-error');
-  if (!email || !pass || pass.length < 4) {
-    errEl.style.display = 'block';
-    return;
-  }
+  if (!email || !pass) { errEl.style.display = 'block'; errEl.textContent = 'Email aur password bharo.'; return; }
   errEl.style.display = 'none';
-  // Simulate login — in real app connect to backend
-  const name = email.split('@')[0];
-  state.name = name.charAt(0).toUpperCase() + name.slice(1);
-  state.handle = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  showPage('template-page');
+  const loginBtn = document.querySelector('#auth-login-panel .auth-btn');
+  loginBtn.textContent = 'Logging in...'; loginBtn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  loginBtn.textContent = 'Continue'; loginBtn.disabled = false;
+  if (error) { errEl.style.display = 'block'; errEl.textContent = error.message; return; }
+  await afterLogin(data.user);
 }
 
 // ── SIGNUP ──
-function doSignup() {
+async function doSignup() {
   const name = document.getElementById('signup-name').value.trim();
   const email = document.getElementById('signup-email').value.trim();
   const pass = document.getElementById('signup-pass').value;
   const errEl = document.getElementById('signup-error');
-  if (!name || !email || !pass || pass.length < 6) {
-    errEl.style.display = 'block';
-    return;
-  }
+  if (!name || !email || !pass || pass.length < 6) { errEl.style.display = 'block'; errEl.textContent = 'Sab fields sahi bharo (password min 6 chars).'; return; }
   errEl.style.display = 'none';
-  state.name = name;
-  state.handle = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  showPage('template-page');
+  const signupBtn = document.querySelector('#auth-signup-panel .auth-btn');
+  signupBtn.textContent = 'Creating...'; signupBtn.disabled = true;
+  const handle = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name, username: handle } } });
+  signupBtn.textContent = 'Create Account'; signupBtn.disabled = false;
+  if (error) { errEl.style.display = 'block'; errEl.textContent = error.message; return; }
+  if (data.user && data.session) {
+    state.name = name; state.handle = handle; state.currentUserId = data.user.id;
+    await sb.from('profiles').upsert({ id: data.user.id, username: handle, name: name });
+    showPage('template-page');
+    setTimeout(() => selectTemplate('instagram'), 100);
+    showToast('Welcome ' + name + '!');
+  } else {
+    errEl.style.display = 'block'; errEl.textContent = 'Email verify karo — link bheja hai!';
+  }
 }
 
-// ── GOOGLE LOGIN (simulated) ──
-function doGoogleLogin() {
-  state.name = 'Google User';
-  state.handle = 'googleuser';
-  showPage('template-page');
+// ── GOOGLE LOGIN ──
+async function doGoogleLogin() {
+  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+  if (error) showToast('Google login error: ' + error.message);
 }
 
 // ── TEMPLATE SELECTION ──
@@ -2987,10 +3069,19 @@ function showToast(msg) {
 }
 
 // Init on load
-window.addEventListener('DOMContentLoaded', () => {
-  // Landing is shown by default; app hidden
-  // Pre-select instagram template when template page loads
+window.addEventListener('DOMContentLoaded', async () => {
   setTimeout(() => selectTemplate('instagram'), 100);
+  // Check if already logged in
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    await afterLogin(session.user);
+  }
+  // Handle OAuth redirect
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session && !state.currentUserId) {
+      await afterLogin(session.user);
+    }
+  });
 });
 </script>
 </body>
