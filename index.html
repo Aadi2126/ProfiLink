@@ -2866,28 +2866,30 @@ function updateCustomItem(secId, itemId, field, value) {
 }
 
 // ── RENDER PROFILE (used in both preview + liveview) ──
-function buildProfileHTML(compact = true) {
-  const theme = themes.find(t => t.id === state.theme) || themes[0];
-  const tags = state.tags.split(',').map(t => t.trim()).filter(Boolean);
+function buildProfileHTML(compact = true, overrideData = null) {
+  // Public profile ke liye overrideData pass hoga, editor ke liye sirf state use hoga
+  const d = overrideData || state;
+  const theme = themes.find(t => t.id === d.theme) || themes[0];
+  const tags = (d.tags || '').split(',').map(t => t.trim()).filter(Boolean);
   const socials = [
-    { icon: '📸', val: state.socials.ig, label: 'Instagram' },
-    { icon: '𝕏',  val: state.socials.tw, label: 'X/Twitter' },
-    { icon: '▶',  val: state.socials.yt, label: 'YouTube' },
-    { icon: '💼', val: state.socials.li, label: 'LinkedIn' },
-    { icon: '⌥',  val: state.socials.gh, label: 'GitHub' },
-    { icon: '✈',  val: state.socials.tg, label: 'Telegram' },
+    { icon: '📸', val: d.socials && d.socials.ig, label: 'Instagram' },
+    { icon: '𝕏',  val: d.socials && d.socials.tw, label: 'X/Twitter' },
+    { icon: '▶',  val: d.socials && d.socials.yt, label: 'YouTube' },
+    { icon: '💼', val: d.socials && d.socials.li, label: 'LinkedIn' },
+    { icon: '⌥',  val: d.socials && d.socials.gh, label: 'GitHub' },
+    { icon: '✈',  val: d.socials && d.socials.tg, label: 'Telegram' },
   ].filter(s => s.val);
 
-  const avatarHTML = state.avatarSrc
-    ? '<img src="' + state.avatarSrc + '" style="width:100%;height:100%;object-fit:cover;display:block;">'
+  const avatarHTML = d.avatarSrc
+    ? '<img src="' + d.avatarSrc + '" style="width:100%;height:100%;object-fit:cover;display:block;">'
     : '🧑‍💻';
 
   // Products
   let productsHTML;
-  if (state.products.length === 0) {
+  if (!d.products || d.products.length === 0) {
     productsHTML = '<div class="empty-state"><div class="empty-icon">📦</div>No products yet. Add some in the editor.</div>';
   } else {
-    const cards = state.products.map(function(p) {
+    const cards = d.products.map(function(p) {
       const thumbContent = p.thumb
         ? '<img class="product-thumb-img" src="' + p.thumb + '">'
         : p.emoji;
@@ -2904,10 +2906,10 @@ function buildProfileHTML(compact = true) {
 
   // Links
   let linksHTML;
-  if (state.links.length === 0) {
+  if (!d.links || d.links.length === 0) {
     linksHTML = '<div class="empty-state"><div class="empty-icon">🔗</div>No links yet. Add some in the editor.</div>';
   } else {
-    linksHTML = state.links.map(function(l) {
+    linksHTML = d.links.map(function(l) {
       const thumb = l.thumb ? '<img src="' + l.thumb + '">' : l.emoji;
       return '<a href="https://' + l.url + '" class="link-item">' +
         '<div class="link-item-thumb">' + thumb + '</div>' +
@@ -2920,10 +2922,10 @@ function buildProfileHTML(compact = true) {
 
   // Work
   let workHTML;
-  if (state.work.length === 0) {
+  if (!d.work || d.work.length === 0) {
     workHTML = '<div class="empty-state"><div class="empty-icon">💼</div>No work added yet.</div>';
   } else {
-    workHTML = state.work.map(function(w) {
+    workHTML = d.work.map(function(w) {
       const banner = w.thumb ? '<div class="work-banner"><img src="' + w.thumb + '" style="width:100%;height:100%;object-fit:cover;"></div>' : '';
       const emojiStyle = w.thumb ? 'background:var(--surface3);' : '';
       return '<div class="work-card">' + banner +
@@ -2942,29 +2944,31 @@ function buildProfileHTML(compact = true) {
       }).join('') + '</div>'
     : '';
 
-  const aboutText = (state.about || '').replace(/\n/g, '<br>');
+  const aboutText = (d.about || '').replace(/\n/g, '<br>');
 
-  const coverStyle = state.coverSrc
-    ? 'background-image:url(\'' + state.coverSrc + '\'); background-size:cover; background-position:center;'
+  const coverStyle = d.coverSrc
+    ? 'background-image:url(\'' + d.coverSrc + '\'); background-size:cover; background-position:center;'
     : 'background:' + theme.color + ';';
 
   const tagsHTML = tags.length
     ? '<div class="p-tags">' + tags.map(function(t) { return '<span class="p-tag">' + t + '</span>'; }).join('') + '</div>'
     : '';
 
-  const igLink = state.igUrl
-    ? ' · <a href="' + state.igUrl + '" style="color:var(--accent);text-decoration:none;">Instagram ↗</a>'
+  const igLink = d.igUrl
+    ? ' · <a href="' + d.igUrl + '" style="color:var(--accent);text-decoration:none;">Instagram ↗</a>'
     : '';
 
   // Custom section tabs
-  const customTabsHTML = state.customSections.map(function(sec) {
-    const isActive = state.activeProfileTab === ('cs-' + sec.id);
+  const customSections = d.customSections || [];
+  const activeTab = d.activeProfileTab || 'links';
+  const customTabsHTML = customSections.map(function(sec) {
+    const isActive = activeTab === ('cs-' + sec.id);
     return '<button class="p-tab ' + (isActive ? 'active' : '') + '" onclick="setProfileTab(\'cs-' + sec.id + '\', this)">' + sec.label + '</button>';
   }).join('');
 
   // Custom section panels
-  const customPanelsHTML = state.customSections.map(function(sec) {
-    const isActive = state.activeProfileTab === ('cs-' + sec.id);
+  const customPanelsHTML = customSections.map(function(sec) {
+    const isActive = activeTab === ('cs-' + sec.id);
     let itemsHTML;
     if (sec.items.length === 0) {
       itemsHTML = '<div class="empty-state"><div class="empty-icon">📋</div>No items yet.</div>';
@@ -2985,37 +2989,37 @@ function buildProfileHTML(compact = true) {
   return '' +
     '<div class="profile-page-inner">' +
       '<div class="profile-cover" style="' + coverStyle + '">' +
-        (!state.coverSrc ? '<div class="cover-noise"></div>' : '') +
+        (!d.coverSrc ? '<div class="cover-noise"></div>' : '') +
       '</div>' +
     '</div>' +
     '<div class="profile-avatar-section">' +
       '<div class="profile-av">' + avatarHTML + '</div>' +
     '</div>' +
     '<div class="profile-info">' +
-      '<div class="profile-name-row"><div class="p-name">' + state.name + '</div></div>' +
-      '<div class="p-handle">@' + state.handle + igLink + '</div>' +
-      '<div class="p-bio">' + state.bio + '</div>' +
+      '<div class="profile-name-row"><div class="p-name">' + (d.name || '') + '</div></div>' +
+      '<div class="p-handle">@' + (d.handle || '') + igLink + '</div>' +
+      '<div class="p-bio">' + (d.bio || '') + '</div>' +
       tagsHTML +
     '</div>' +
 
     '<div class="p-tabs">' +
-      '<button class="p-tab ' + (state.activeProfileTab === 'products' ? 'active' : '') + '" onclick="setProfileTab(\'products\', this)">Products</button>' +
-      '<button class="p-tab ' + (state.activeProfileTab === 'links' ? 'active' : '') + '" onclick="setProfileTab(\'links\', this)">Links</button>' +
-      '<button class="p-tab ' + (state.activeProfileTab === 'work' ? 'active' : '') + '" onclick="setProfileTab(\'work\', this)">Work</button>' +
-      '<button class="p-tab ' + (state.activeProfileTab === 'about' ? 'active' : '') + '" onclick="setProfileTab(\'about\', this)">About</button>' +
+      '<button class="p-tab ' + (activeTab === 'products' ? 'active' : '') + '" onclick="setProfileTab(\'products\', this)">Products</button>' +
+      '<button class="p-tab ' + (activeTab === 'links' ? 'active' : '') + '" onclick="setProfileTab(\'links\', this)">Links</button>' +
+      '<button class="p-tab ' + (activeTab === 'work' ? 'active' : '') + '" onclick="setProfileTab(\'work\', this)">Work</button>' +
+      '<button class="p-tab ' + (activeTab === 'about' ? 'active' : '') + '" onclick="setProfileTab(\'about\', this)">About</button>' +
       customTabsHTML +
     '</div>' +
     '<div class="p-content">' +
-      '<div class="p-section ' + (state.activeProfileTab === 'products' ? 'active' : '') + '" id="ps-products">' +
+      '<div class="p-section ' + (activeTab === 'products' ? 'active' : '') + '" id="ps-products">' +
         '<div class="p-section-label">Products & Digital Goods</div>' + productsHTML +
       '</div>' +
-      '<div class="p-section ' + (state.activeProfileTab === 'links' ? 'active' : '') + '" id="ps-links">' +
+      '<div class="p-section ' + (activeTab === 'links' ? 'active' : '') + '" id="ps-links">' +
         '<div class="p-section-label">Links</div>' + linksHTML +
       '</div>' +
-      '<div class="p-section ' + (state.activeProfileTab === 'work' ? 'active' : '') + '" id="ps-work">' +
+      '<div class="p-section ' + (activeTab === 'work' ? 'active' : '') + '" id="ps-work">' +
         '<div class="p-section-label">Work & Projects</div>' + workHTML +
       '</div>' +
-      '<div class="p-section ' + (state.activeProfileTab === 'about' ? 'active' : '') + '" id="ps-about">' +
+      '<div class="p-section ' + (activeTab === 'about' ? 'active' : '') + '" id="ps-about">' +
         '<div class="p-section-label">About</div>' +
         '<div class="about-text">' + aboutText + '</div>' +
       '</div>' +
@@ -3133,32 +3137,39 @@ async function initPublicProfile(username) {
     root.innerHTML = '<div class="empty-state"><h3>User not found 404</h3><p>Ye profile abhi bani nahi hai.</p><br><a href="/" style="color:var(--accent)">Apni profile banayein →</a></div>';
     return;
   }
-  // Update State with DB data
-  state.name = profile.name || '';
-  state.handle = profile.username || username;
-  state.bio = profile.bio || '';
-  state.tags = profile.tags || '';
-  state.about = profile.about || '';
-  state.igUrl = profile.ig_url || '';
-  state.theme = profile.theme || 'dark';
-  state.uiTheme = profile.ui_theme || '';
-  state.avatarSrc = profile.avatar_url || null;
-  state.coverSrc = profile.cover_url || null;
-  if (profile.socials) state.socials = profile.socials;
-  if (profile.links) state.links = profile.links;
-  if (profile.products) state.products = profile.products;
-  if (profile.work) state.work = profile.work;
-  if (profile.custom_sections) state.customSections = profile.custom_sections;
-  // Render
-  root.innerHTML = buildProfileHTML(false);
+
+  // ✅ FIX: Global state ko mutate NAHI karte — alag publicData object banao
+  // Isse agar kisi ne pehle apni profile banayi thi, uska data mix nahi hoga
+  const publicData = {
+    name: profile.name || '',
+    handle: profile.username || username,
+    bio: profile.bio || '',
+    tags: profile.tags || '',
+    about: profile.about || '',
+    igUrl: profile.ig_url || '',
+    theme: profile.theme || 'dark',
+    uiTheme: profile.ui_theme || '',
+    avatarSrc: profile.avatar_url || null,
+    coverSrc: profile.cover_url || null,
+    socials: profile.socials || {},
+    links: profile.links || [],
+    products: profile.products || [],
+    work: profile.work || [],
+    customSections: profile.custom_sections || [],
+    activeProfileTab: 'links'
+  };
+
+  // Render with isolated publicData — state untouched
+  root.innerHTML = buildProfileHTML(false, publicData);
+
   // Apply UI Theme Class
-  if (state.uiTheme) {
-    root.classList.add(state.uiTheme);
+  if (publicData.uiTheme) {
+    root.classList.add(publicData.uiTheme);
   }
   // Hide Edit button for visitors
   const editBtn = document.querySelector('#liveview .btn-ghost');
   if (editBtn) editBtn.style.display = 'none';
-  document.title = (state.name || username) + ' — ProfiLink';
+  document.title = (publicData.name || username) + ' — ProfiLink';
 }
 
 async function setupApp() {
