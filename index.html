@@ -2323,7 +2323,9 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ── AFTER LOGIN ──
 async function afterLogin(user) {
   state.currentUserId = user.id;
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  const { data: profile } = await sb.from('profiles')
+    .select('name, username, bio, tags, about, ig_url, theme, ui_theme, socials, links, products, work, custom_sections, avatar_url, cover_url')
+    .eq('id', user.id).single();
   if (profile) {
     state.name = profile.name || state.name;
     state.handle = profile.username || state.handle;
@@ -2545,17 +2547,15 @@ function syncIGStats() {
 function handleCoverUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    state.coverSrc = e.target.result;
+  compressImage(file, 900, 0.75, function(compressed) {
+    state.coverSrc = compressed;
     const img = document.getElementById('cover-preview-img');
-    img.src = e.target.result;
+    img.src = compressed;
     img.style.display = 'block';
     document.getElementById('cover-upload-inner').style.display = 'none';
     document.getElementById('cover-remove-btn').style.display = 'inline-block';
     renderPreview();
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 function removeCover() {
@@ -2572,15 +2572,13 @@ function removeCover() {
 function handleItemThumb(input, type, idx) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    state[type][idx].thumb = e.target.result;
+  compressImage(file, 400, 0.7, function(compressed) {
+    state[type][idx].thumb = compressed;
     if (type === 'products') renderProductsList();
     if (type === 'links') renderLinksList();
     if (type === 'work') renderWorkList();
     renderPreview();
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 // ── AVATAR ──
@@ -2588,18 +2586,33 @@ function triggerAvatarUpload() {
   document.getElementById('av-file').click();
 }
 
+function compressImage(file, maxWidth, quality, callback) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function handleAvatar(input) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    state.avatarSrc = e.target.result;
-    document.getElementById('av-img').src = e.target.result;
+  compressImage(file, 300, 0.75, function(compressed) {
+    state.avatarSrc = compressed;
+    document.getElementById('av-img').src = compressed;
     document.getElementById('av-img').style.display = 'block';
     document.getElementById('av-emoji').style.display = 'none';
     updatePreview();
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 // ── READ FIELDS → STATE ──
@@ -2653,16 +2666,14 @@ function updateItemField(type, id, field, value, rerender) {
 function handleItemThumbById(input, type, id) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  compressImage(file, 400, 0.7, function(compressed) {
     const item = state[type].find(x => x.id === id);
-    if (item) item.thumb = e.target.result;
+    if (item) item.thumb = compressed;
     if (type === 'products') renderProductsList();
     if (type === 'links') renderLinksList();
     if (type === 'work') renderWorkList();
     renderPreview();
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 // ── PRODUCTS LIST (Editor) ──
@@ -3125,11 +3136,25 @@ async function initPublicProfile(username) {
   const lv = document.getElementById('liveview');
   lv.style.display = 'block';
   const root = document.getElementById('liveview-root');
-  root.innerHTML = '<div class="empty-state">Loading Profile...</div>';
+  root.innerHTML = `
+    <div class="profile-page-inner">
+      <div class="profile-cover" style="background:linear-gradient(135deg,#1a0e3a,#0e1e3a);"></div>
+    </div>
+    <div class="profile-avatar-section">
+      <div class="profile-av" style="background:var(--surface3); animation: skeletonPulse 1.4s ease-in-out infinite;"></div>
+    </div>
+    <div class="profile-info" style="padding:0 20px 16px;">
+      <div style="height:22px; width:140px; border-radius:8px; background:var(--surface3); margin-bottom:10px; animation:skeletonPulse 1.4s ease-in-out infinite;"></div>
+      <div style="height:14px; width:90px; border-radius:6px; background:var(--surface3); margin-bottom:12px; animation:skeletonPulse 1.4s ease-in-out infinite;"></div>
+      <div style="height:12px; width:100%; border-radius:6px; background:var(--surface3); margin-bottom:6px; animation:skeletonPulse 1.4s ease-in-out infinite;"></div>
+      <div style="height:12px; width:75%; border-radius:6px; background:var(--surface3); animation:skeletonPulse 1.4s ease-in-out infinite;"></div>
+    </div>
+    <style>@keyframes skeletonPulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }</style>
+  `;
   // Fetching data from Supabase
   const { data: profile, error } = await sb
     .from('profiles')
-    .select('*')
+    .select('name, username, bio, tags, about, ig_url, theme, ui_theme, avatar_url, cover_url, socials, links, products, work, custom_sections')
     .eq('username', username)
     .single();
   if (error || !profile) {
