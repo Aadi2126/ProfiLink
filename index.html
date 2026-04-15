@@ -2031,7 +2031,7 @@ body {
 <div id="app">
 
   <header class="app-header">
-    <div class="app-logo"><span></span> ProfiLink</div>
+    <div class="app-logo" onclick="goToTemplatePage()" style="cursor:pointer;" title="Change Template"><span></span> ProfiLink</div>
     <div class="header-actions">
       <button class="btn-ghost" onclick="showLive()">👁 Preview</button>
       <button class="btn-ghost" onclick="doLogout()">Logout</button>
@@ -2384,7 +2384,10 @@ async function afterLogin(user) {
 
     readFields();
     renderPreview();
-    showToast('Welcome back, ' + state.name + '!');
+    // ✅ Purane user ko bhi template page dikhao
+    showPage('template-page');
+    setTimeout(() => selectTemplate('instagram'), 100);
+    showToast('Welcome back, ' + state.name + '! Template choose karo.');
   } else {
     // Naya user
     state.name   = user.user_metadata?.full_name || user.email.split('@')[0];
@@ -2392,6 +2395,12 @@ async function afterLogin(user) {
     showPage('template-page');
     setTimeout(() => selectTemplate('instagram'), 100);
   }
+}
+
+// ── LOGO CLICK → TEMPLATE PAGE ──
+function goToTemplatePage() {
+  showPage('template-page');
+  setTimeout(() => selectTemplate('instagram'), 100);
 }
 
 // ── SAVE PROFILE ──
@@ -2483,17 +2492,39 @@ function selectTemplate(id) {
 }
 
 function useTemplate(id) {
-  // Apply template defaults
-  if (id === 'instagram') {
-    // Instagram style is the default — nothing extra needed
-  }
   showPage('app');
   initEditor();
-  // Pre-fill name from auth
-  const nameEl = document.getElementById('f-name');
-  if (nameEl && state.name && state.name !== 'Your Name') nameEl.value = state.name;
-  const handleEl = document.getElementById('f-handle');
-  if (handleEl && state.handle && state.handle !== 'you') handleEl.value = state.handle;
+  // State se saare fields fill karo (existing + new user dono ke liye)
+  const set = (elId, val) => { const el = document.getElementById(elId); if (el) el.value = val || ''; };
+  set('f-name',   state.name);
+  set('f-handle', state.handle);
+  set('f-bio',    state.bio);
+  set('f-tags',   state.tags);
+  set('f-about',  state.about);
+  set('s-ig', state.socials.ig || '');
+  set('s-tw', state.socials.tw || '');
+  set('s-yt', state.socials.yt || '');
+  set('s-li', state.socials.li || '');
+  set('s-gh', state.socials.gh || '');
+  set('s-tg', state.socials.tg || '');
+
+  // Avatar restore
+  if (state.avatarSrc) {
+    const avImg = document.getElementById('av-img');
+    const avEmoji = document.getElementById('av-emoji');
+    if (avImg)   { avImg.src = state.avatarSrc; avImg.style.display = 'block'; }
+    if (avEmoji) avEmoji.style.display = 'none';
+  }
+  // Cover restore
+  if (state.coverSrc) {
+    const coverImg    = document.getElementById('cover-preview-img');
+    const coverInner  = document.getElementById('cover-upload-inner');
+    const coverRemove = document.getElementById('cover-remove-btn');
+    if (coverImg)    { coverImg.src = state.coverSrc; coverImg.style.display = 'block'; }
+    if (coverInner)  coverInner.style.display  = 'none';
+    if (coverRemove) coverRemove.style.display = 'inline-block';
+  }
+
   readFields();
   renderPreview();
   showToast('✦ Template applied! Start customising.');
