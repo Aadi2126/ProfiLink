@@ -2327,32 +2327,66 @@ async function afterLogin(user) {
     .select('name, username, bio, tags, about, ig_url, theme, ui_theme, socials, links, products, work, custom_sections, avatar_url, cover_url')
     .eq('id', user.id).single();
   if (profile) {
-    state.name = profile.name || state.name;
-    state.handle = profile.username || state.handle;
-    state.bio = profile.bio || state.bio;
-    state.tags = profile.tags || state.tags;
-    state.about = profile.about || state.about;
-    state.igUrl = profile.ig_url || state.igUrl;
-    state.theme = profile.theme || state.theme;
+    // ── State update ──
+    state.name    = profile.name     || state.name;
+    state.handle  = profile.username || state.handle;
+    state.bio     = profile.bio      || '';
+    state.tags    = profile.tags     || '';
+    state.about   = profile.about    || '';
+    state.igUrl   = profile.ig_url   || '';
+    state.theme   = profile.theme    || 'dark';
     state.uiTheme = profile.ui_theme || '';
     if (profile.socials) state.socials = profile.socials;
-    if (profile.links && profile.links.length) state.links = profile.links;
-    if (profile.products && profile.products.length) state.products = profile.products;
-    if (profile.work && profile.work.length) state.work = profile.work;
+    if (profile.links    && profile.links.length)           state.links          = profile.links;
+    if (profile.products && profile.products.length)        state.products       = profile.products;
+    if (profile.work     && profile.work.length)            state.work           = profile.work;
     if (profile.custom_sections && profile.custom_sections.length) state.customSections = profile.custom_sections;
+
+    // ✅ FIX 1: Avatar + Cover state load
+    state.avatarSrc = profile.avatar_url || null;
+    state.coverSrc  = profile.cover_url  || null;
+
     showPage('app');
     initEditor();
-    const nameEl = document.getElementById('f-name');
-    if (nameEl) nameEl.value = state.name;
-    const handleEl = document.getElementById('f-handle');
-    if (handleEl) handleEl.value = state.handle;
-    const bioEl = document.getElementById('f-bio');
-    if (bioEl) bioEl.value = state.bio;
+
+    // ✅ FIX 2: Saare DOM fields fill karo (readFields se PEHLE)
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('f-name',   state.name);
+    set('f-handle', state.handle);
+    set('f-bio',    state.bio);
+    set('f-tags',   state.tags);
+    set('f-about',  state.about);
+    set('s-ig', state.socials.ig || '');
+    set('s-tw', state.socials.tw || '');
+    set('s-yt', state.socials.yt || '');
+    set('s-li', state.socials.li || '');
+    set('s-gh', state.socials.gh || '');
+    set('s-tg', state.socials.tg || '');
+
+    // ✅ FIX 3: Avatar DOM update
+    if (state.avatarSrc) {
+      const avImg   = document.getElementById('av-img');
+      const avEmoji = document.getElementById('av-emoji');
+      if (avImg)   { avImg.src = state.avatarSrc; avImg.style.display = 'block'; }
+      if (avEmoji) avEmoji.style.display = 'none';
+    }
+
+    // ✅ FIX 4: Cover DOM update
+    if (state.coverSrc) {
+      const coverImg    = document.getElementById('cover-preview-img');
+      const coverInner  = document.getElementById('cover-upload-inner');
+      const coverRemove = document.getElementById('cover-remove-btn');
+      if (coverImg)    { coverImg.src = state.coverSrc; coverImg.style.display = 'block'; }
+      if (coverInner)  coverInner.style.display  = 'none';
+      if (coverRemove) coverRemove.style.display = 'inline-block';
+    }
+
     readFields();
     renderPreview();
     showToast('Welcome back, ' + state.name + '!');
   } else {
-    state.name = user.user_metadata?.full_name || user.email.split('@')[0];
+    // Naya user
+    state.name   = user.user_metadata?.full_name || user.email.split('@')[0];
     state.handle = state.name.toLowerCase().replace(/[^a-z0-9]/g, '');
     showPage('template-page');
     setTimeout(() => selectTemplate('instagram'), 100);
@@ -3198,12 +3232,14 @@ async function initPublicProfile(username) {
 }
 
 async function setupApp() {
-  setTimeout(() => selectTemplate('instagram'), 100);
-
+  // ✅ FIX: selectTemplate sirf naye user ke liye — afterLogin handle karega logged-in users ko
   // Check if already logged in
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     await afterLogin(session.user);
+  } else {
+    // Koi session nahi — landing page pe hain, template preview ke liye
+    setTimeout(() => selectTemplate('instagram'), 100);
   }
 
   // Handle OAuth redirect
