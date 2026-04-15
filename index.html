@@ -2067,25 +2067,25 @@ body {
 
         <div class="field-group">
           <label class="field-label">Display Name</label>
-          <input class="field-input" id="f-name" placeholder="Your Name" value="Aadi Sharma" oninput="updatePreview()">
+          <input class="field-input" id="f-name" placeholder="Your Name" value="Your Name" oninput="updatePreview()">
         </div>
 
         <div class="field-group">
           <label class="field-label">Username / Handle</label>
           <div style="display:flex; align-items:center; gap:0;">
             <span style="background:var(--surface3); border:1px solid var(--border); border-right:none; border-radius:10px 0 0 10px; padding:10px 12px; font-size:0.85rem; color:var(--muted);">@</span>
-            <input class="field-input" id="f-handle" placeholder="yourname" value="aadi" oninput="sanitizeHandle(this); updatePreview()" style="border-radius:0 10px 10px 0;">
+            <input class="field-input" id="f-handle" placeholder="yourname" value="yourhandle" oninput="sanitizeHandle(this); updatePreview()" style="border-radius:0 10px 10px 0;">
           </div>
         </div>
 
         <div class="field-group">
           <label class="field-label">Bio</label>
-          <textarea class="field-textarea" id="f-bio" placeholder="Tell the world who you are..." oninput="updatePreview()">Building products for creators & indie hackers. Currently: AutoDM × music platforms.</textarea>
+          <textarea class="field-textarea" id="f-bio" placeholder="Tell the world who you are..." oninput="updatePreview()">Creator · Builder · Entrepreneur ✦</textarea>
         </div>
 
         <div class="field-group">
           <label class="field-label">Tags (comma separated)</label>
-          <input class="field-input" id="f-tags" placeholder="Builder, Creator, Music" value="🛠 Builder, 📲 Creator Tools, 🎵 Music Tech" oninput="updatePreview()">
+          <input class="field-input" id="f-tags" placeholder="Builder, Creator, Music" value="🛠 Creator, 💡 Entrepreneur, 🚀 Builder" oninput="updatePreview()">
         </div>
 
         <div class="section-divider"></div>
@@ -2093,7 +2093,7 @@ body {
 
         <div class="field-group">
           <label class="field-label">Instagram Profile URL</label>
-          <input class="field-input" id="f-ig-url" placeholder="https://instagram.com/yourhandle" value="https://instagram.com/aadi" oninput="syncIGStats()">
+          <input class="field-input" id="f-ig-url" placeholder="https://instagram.com/yourhandle" value="https://instagram.com/yourhandle" oninput="syncIGStats()">
         </div>
 
         <div class="section-divider"></div>
@@ -2102,11 +2102,11 @@ body {
         <div class="social-grid">
           <div class="social-field">
             <span class="social-icon">📸</span>
-            <input id="s-ig" placeholder="Instagram" value="instagram.com/aadi" oninput="updatePreview()">
+            <input id="s-ig" placeholder="Instagram" value="instagram.com/yourhandle" oninput="updatePreview()">
           </div>
           <div class="social-field">
             <span class="social-icon">𝕏</span>
-            <input id="s-tw" placeholder="Twitter / X" value="x.com/aadi" oninput="updatePreview()">
+            <input id="s-tw" placeholder="Twitter / X" value="x.com/yourhandle" oninput="updatePreview()">
           </div>
           <div class="social-field">
             <span class="social-icon">▶</span>
@@ -2118,7 +2118,7 @@ body {
           </div>
           <div class="social-field">
             <span class="social-icon">⌥</span>
-            <input id="s-gh" placeholder="GitHub" value="github.com/aadi" oninput="updatePreview()">
+            <input id="s-gh" placeholder="GitHub" value="github.com/yourhandle" oninput="updatePreview()">
           </div>
           <div class="social-field">
             <span class="social-icon">✈</span>
@@ -2161,9 +2161,9 @@ body {
       <div class="editor-section" id="ed-about">
         <div class="field-group">
           <label class="field-label">About Me</label>
-          <textarea class="field-textarea" id="f-about" style="min-height:140px;" placeholder="Write a detailed about section..." oninput="updatePreview()">Hey! I'm Aadi — an indie builder based in India. I work at the intersection of creator tools, automation, and music tech.
+          <textarea class="field-textarea" id="f-about" style="min-height:140px;" placeholder="Write a detailed about section..." oninput="updatePreview()">Hey! I'm [Your Name] — a creator based in India. I work at the intersection of [your niche] and [your passion].
 
-Currently building AutoDM and a workshop platform for classical musicians. Always down to collaborate on interesting products.</textarea>
+Always open to collaborations and interesting projects.</textarea>
         </div>
       </div>
 
@@ -2222,7 +2222,7 @@ Currently building AutoDM and a workshop platform for classical musicians. Alway
 <div id="liveview">
   <div class="liveview-header">
     <div class="app-logo" style="font-size:0.9rem;"><span></span> ProfiLink</div>
-    <div class="liveview-url" id="lv-url">profilink.in/@aadi</div>
+    <div class="liveview-url" id="lv-url">profilink.in/@yourhandle</div>
     <button class="btn-ghost" onclick="backToEditor()">← Edit</button>
   </div>
   <div class="liveview-page" id="liveview-root"></div>
@@ -2234,33 +2234,33 @@ Currently building AutoDM and a workshop platform for classical musicians. Alway
 <script>
 // ── STATE ──
 const state = {
-  name: 'Aadi Sharma',
-  handle: 'aadi',
-  bio: 'Building products for creators & indie hackers. Currently: AutoDM × music platforms.',
-  tags: '🛠 Builder, 📲 Creator Tools, 🎵 Music Tech',
-  igUrl: 'https://instagram.com/aadi',
-  followers: '12.4k',
-  posts: '86',
-  about: `Hey! I'm Aadi — an indie builder based in India. I work at the intersection of creator tools, automation, and music tech.\n\nCurrently building AutoDM and a workshop platform for classical musicians. Always down to collaborate on interesting products.`,
+  name: 'Your Name',
+  handle: 'yourhandle',
+  bio: 'Creator · Builder · Entrepreneur ✦',
+  tags: '🛠 Creator, 💡 Entrepreneur, 🚀 Builder',
+  igUrl: 'https://instagram.com/yourhandle',
+  followers: '0',
+  posts: '0',
+  about: `Hey! I'm [Your Name] — a creator based in India. I work at the intersection of [your niche] and [your passion].\n\nAlways open to collaborations and interesting projects.`,
   avatarSrc: null,
   coverSrc: null,
-  socials: { ig: 'instagram.com/aadi', tw: 'x.com/aadi', yt: '', li: '', gh: 'github.com/aadi', tg: '' },
+  socials: { ig: 'instagram.com/yourhandle', tw: 'x.com/yourhandle', yt: '', li: '', gh: 'github.com/yourhandle', tg: '' },
   theme: 'dark',
   uiTheme: '',
   customSections: [],
   activeProfileTab: 'products',
   products: [
-    { id: 1, name: 'AutoDM', emoji: '⚡', price: '₹999/mo', desc: 'Instagram comment-to-DM automation', url: '#', thumb: null },
-    { id: 2, name: 'Workshop Registration', emoji: '🎵', price: 'Free', desc: 'Music workshop booking system', url: '#', thumb: null },
+    { id: 1, name: 'Product', emoji: '⚡', price: '₹0', desc: 'Your digital product description', url: '#', thumb: null },
+    { id: 2, name: 'Workshop', emoji: '🎵', price: 'Free', desc: 'Register for my upcoming workshop', url: '#', thumb: null },
   ],
   links: [
-    { id: 1, name: 'Bhavika Jain Workshop', emoji: '🎼', url: 'bit.ly/bhavika-workshop', desc: 'Register now', thumb: null },
-    { id: 2, name: 'Building in Public Threads', emoji: '🧵', url: 'threads.net/@aadi', desc: 'Weekly updates', thumb: null },
-    { id: 3, name: 'Buy me a coffee', emoji: '☕', url: 'buymeacoffee.com/aadi', desc: 'Support my work', thumb: null },
+    { id: 1, name: 'Workshop', emoji: '🎼', url: 'bit.ly/your-workshop', desc: 'Register now', thumb: null },
+    { id: 2, name: 'Follow me on Threads', emoji: '🧵', url: 'threads.net/@yourhandle', desc: 'Weekly updates', thumb: null },
+    { id: 3, name: 'Buy me a coffee', emoji: '☕', url: 'buymeacoffee.com/yourhandle', desc: 'Support my work', thumb: null },
   ],
   work: [
-    { id: 1, title: 'AutoDM', role: 'Founder · 2024–Present', emoji: '⚡', desc: 'Built an Instagram automation SaaS with Meta Graph API integration.', thumb: null },
-    { id: 2, title: 'Freelance Dev', role: 'Web Developer · 2022–Present', emoji: '💻', desc: 'Dashboards, registration systems, and web apps for clients across India.', thumb: null },
+    { id: 1, title: 'Your Project', role: 'Founder · 2024–Present', emoji: '⚡', desc: 'Describe what you built or worked on.', thumb: null },
+    { id: 2, title: 'Freelance', role: 'Web Developer · 2022–Present', emoji: '💻', desc: 'Web projects and client work across India.', thumb: null },
   ],
 };
 
