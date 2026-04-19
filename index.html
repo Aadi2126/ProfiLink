@@ -2321,13 +2321,6 @@ body {
           <button class="tpl-use-btn" onclick="useTemplate('bento')">Use this template ✦</button>
         </div>
       </div>
-        </div>
-        <div class="tpl-info">
-          <div class="tpl-name">Minimal Card</div>
-          <div class="tpl-desc">Ultra-clean single-scroll layout. Just your essentials — avatar, bio tags, and stacked links — nothing more.</div>
-          <button class="tpl-use-btn" onclick="useTemplate('minimal')">Use this template ✦</button>
-        </div>
-      </div>
 
       <!-- Coming Soon: Portfolio -->
       <div class="tpl-card coming">
@@ -2719,10 +2712,9 @@ async function afterLogin(user) {
 
     readFields();
     renderPreview();
-    // ✅ Purane user ko bhi template page dikhao
-    showPage('template-page');
-    setTimeout(() => selectTemplate('instagram'), 100);
-    showToast('Welcome back, ' + state.name + '! Template choose karo.');
+    // Existing user ko directly app pe le jao (template nahi)
+    showPage('app');
+    showToast('Welcome back, ' + state.name + '! ✦');
   } else {
     // Naya user
     state.name   = user.user_metadata?.full_name || user.email.split('@')[0];
@@ -3620,9 +3612,8 @@ async function setupApp() {
   if (session) {
     await afterLogin(session.user);
   } else {
-    // No session — show landing page
+    // No session — show landing page only
     hideSkeletonLoading();
-    setTimeout(() => selectTemplate('instagram'), 100);
   }
 
   // Handle OAuth redirect
