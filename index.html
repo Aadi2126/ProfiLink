@@ -1980,6 +1980,33 @@ body {
 </head>
 <body>
 
+<!-- SKELETON LOADER -->
+<div id="skeleton-loader" style="display:none;position:fixed;inset:0;background:#07080c;z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:24px;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <div style="width:8px;height:8px;border-radius:50%;background:#7c6aff;"></div>
+    <span style="font-family:serif;font-size:1.1rem;color:#7c6aff;letter-spacing:2px;text-transform:uppercase;">ProfiLink</span>
+  </div>
+  <div style="width:320px;max-width:90vw;display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="sk-box" style="width:56px;height:56px;border-radius:50%;flex-shrink:0;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div class="sk-box" style="height:16px;width:60%;border-radius:8px;"></div>
+        <div class="sk-box" style="height:12px;width:40%;border-radius:6px;"></div>
+      </div>
+    </div>
+    <div class="sk-box" style="height:12px;width:100%;border-radius:6px;"></div>
+    <div class="sk-box" style="height:12px;width:80%;border-radius:6px;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
+      <div class="sk-box" style="height:64px;border-radius:10px;"></div>
+      <div class="sk-box" style="height:64px;border-radius:10px;"></div>
+      <div class="sk-box" style="height:64px;border-radius:10px;"></div>
+      <div class="sk-box" style="height:64px;border-radius:10px;"></div>
+    </div>
+  </div>
+  <div style="font-size:0.75rem;color:rgba(238,237,245,0.4);margin-top:4px;">Loading your profile...</div>
+</div>
+<style>.sk-box{background:#1e2233;animation:skPulse 1.4s ease-in-out infinite}@keyframes skPulse{0%,100%{opacity:0.4}50%{opacity:0.8}}</style>
+
 <!-- ══════════════════════════════════
      LANDING PAGE
 ══════════════════════════════════ -->
@@ -3499,57 +3526,17 @@ async function setupApp() {
 }
 
 function showSkeletonLoading() {
-  // Hide landing immediately
-  const landing = document.getElementById('landing');
-  if (landing) landing.style.display = 'none';
-
-  // Show skeleton overlay
-  let skEl = document.getElementById('skeleton-loader');
-  if (!skEl) {
-    skEl = document.createElement('div');
-    skEl.id = 'skeleton-loader';
-    skEl.innerHTML = `
-      <div style="position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);"></div>
-          <span style="font-family:'Instrument Serif',serif;font-size:1.1rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;">ProfiLink</span>
-        </div>
-        <div style="width:320px;max-width:90vw;display:flex;flex-direction:column;gap:14px;">
-          <div style="display:flex;align-items:center;gap:14px;">
-            <div class="sk-box" style="width:56px;height:56px;border-radius:50%;flex-shrink:0;"></div>
-            <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
-              <div class="sk-box" style="height:16px;width:60%;border-radius:8px;"></div>
-              <div class="sk-box" style="height:12px;width:40%;border-radius:6px;"></div>
-            </div>
-          </div>
-          <div class="sk-box" style="height:12px;width:100%;border-radius:6px;"></div>
-          <div class="sk-box" style="height:12px;width:80%;border-radius:6px;"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
-            <div class="sk-box" style="height:64px;border-radius:10px;"></div>
-            <div class="sk-box" style="height:64px;border-radius:10px;"></div>
-            <div class="sk-box" style="height:64px;border-radius:10px;"></div>
-            <div class="sk-box" style="height:64px;border-radius:10px;"></div>
-          </div>
-        </div>
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:4px;">Loading your profile...</div>
-      </div>
-      <style>
-        .sk-box { background: var(--surface3); animation: skPulse 1.4s ease-in-out infinite; }
-        @keyframes skPulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
-      </style>
-    `;
-    document.body.appendChild(skEl);
-  }
-  skEl.style.display = 'block';
+  document.getElementById('skeleton-loader').style.display = 'flex';
+  document.getElementById('landing').style.display = 'none';
 }
 
 function hideSkeletonLoading() {
-  const skEl = document.getElementById('skeleton-loader');
-  if (skEl) skEl.style.display = 'none';
-  // Show landing if needed
-  const landing = document.getElementById('landing');
-  if (landing && document.getElementById('app').style.display === 'none' && document.getElementById('template-page').style.display === 'none') {
-    landing.style.display = 'flex';
+  document.getElementById('skeleton-loader').style.display = 'none';
+  // Agar koi page visible nahi hai toh landing dikhao
+  const pages = ['app','template-page','liveview','bento-page'];
+  const anyVisible = pages.some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none' && el.style.display !== ''; });
+  if (!anyVisible) {
+    document.getElementById('landing').style.display = 'flex';
   }
 }
 
