@@ -1960,21 +1960,129 @@ body {
 #bento-page .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border2); color: var(--text); font-size: 0.8rem; padding: 10px 20px; border-radius: 100px; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; z-index: 999; white-space: nowrap; }
 #bento-page .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* Bento Theme Cards */
-.bento-theme-card {
-  position: relative;
+/* ══════════════════════════════
+   BENTO THEME VARIABLES (preview only)
+   Applied via data-theme on .bento-profile
+══════════════════════════════ */
+
+/* Default – Deep Space */
+#bento-page .bento-profile[data-theme="default"] {
+  --bp-bg: #07080c; --bp-surface: #10121a; --bp-surface2: #181c28; --bp-surface3: #1e2233;
+  --bp-border: rgba(255,255,255,0.07); --bp-border2: rgba(255,255,255,0.12);
+  --bp-text: #eeedf5; --bp-muted: rgba(238,237,245,0.4); --bp-muted2: rgba(238,237,245,0.6);
+  --bp-accent: #7c6aff; --bp-accent-glow: rgba(124,106,255,0.18);
+  --bp-work-grad: linear-gradient(135deg,#1a1030 0%,#0d1a2e 60%,#0a1520 100%);
+}
+/* 🌸 Rose Petal – Girls theme 1 */
+#bento-page .bento-profile[data-theme="rose"] {
+  --bp-bg: #fdf2f5; --bp-surface: #fff0f3; --bp-surface2: #fce4eb; --bp-surface3: #f9d4de;
+  --bp-border: rgba(200,60,90,0.1); --bp-border2: rgba(200,60,90,0.18);
+  --bp-text: #2d1018; --bp-muted: rgba(45,16,24,0.4); --bp-muted2: rgba(45,16,24,0.65);
+  --bp-accent: #e8476a; --bp-accent-glow: rgba(232,71,106,0.15);
+  --bp-work-grad: linear-gradient(135deg,#ffd6e3 0%,#ffadc9 60%,#f9c5d4 100%);
+}
+/* 🌙 Lavender Dream – Girls theme 2 */
+#bento-page .bento-profile[data-theme="lavender"] {
+  --bp-bg: #f5f0ff; --bp-surface: #ede4ff; --bp-surface2: #e0d3fa; --bp-surface3: #d4c3f5;
+  --bp-border: rgba(120,60,210,0.1); --bp-border2: rgba(120,60,210,0.18);
+  --bp-text: #1e0d3a; --bp-muted: rgba(30,13,58,0.4); --bp-muted2: rgba(30,13,58,0.65);
+  --bp-accent: #8b5cf6; --bp-accent-glow: rgba(139,92,246,0.18);
+  --bp-work-grad: linear-gradient(135deg,#e4d4ff 0%,#c4a8f5 60%,#ddd0ff 100%);
+}
+/* 🌊 Ocean Dark – Boys theme 1 */
+#bento-page .bento-profile[data-theme="ocean"] {
+  --bp-bg: #040d1a; --bp-surface: #071428; --bp-surface2: #0a1f3c; --bp-surface3: #0d2a50;
+  --bp-border: rgba(0,180,255,0.08); --bp-border2: rgba(0,180,255,0.15);
+  --bp-text: #e0f4ff; --bp-muted: rgba(224,244,255,0.4); --bp-muted2: rgba(224,244,255,0.65);
+  --bp-accent: #00b4ff; --bp-accent-glow: rgba(0,180,255,0.18);
+  --bp-work-grad: linear-gradient(135deg,#001a3a 0%,#00264d 60%,#003366 100%);
+}
+/* 🔥 Carbon Fire – Boys theme 2 */
+#bento-page .bento-profile[data-theme="carbon"] {
+  --bp-bg: #0c0c0c; --bp-surface: #161616; --bp-surface2: #1e1e1e; --bp-surface3: #282828;
+  --bp-border: rgba(255,100,0,0.08); --bp-border2: rgba(255,100,0,0.16);
+  --bp-text: #f5f0eb; --bp-muted: rgba(245,240,235,0.4); --bp-muted2: rgba(245,240,235,0.65);
+  --bp-accent: #ff6400; --bp-accent-glow: rgba(255,100,0,0.18);
+  --bp-work-grad: linear-gradient(135deg,#1a0800 0%,#2d1000 60%,#1a0a00 100%);
+}
+
+/* Apply theme tokens inside bento-profile */
+#bento-page .bento-profile[data-theme] { background: var(--bp-bg) !important; color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-name-ghost { color: color-mix(in srgb, var(--bp-text) 18%, transparent) !important; text-shadow: 0 0 40px var(--bp-accent-glow) !important; }
+#bento-page .bento-profile[data-theme] .b-name-ghost.l2 { color: color-mix(in srgb, var(--bp-text) 10%, transparent) !important; }
+#bento-page .bento-profile[data-theme] .b-avatar { background: var(--bp-surface2) !important; border-color: color-mix(in srgb, var(--bp-text) 10%, transparent) !important; }
+#bento-page .bento-profile[data-theme] .b-social-pill { background: var(--bp-surface2) !important; border-color: var(--bp-border2) !important; color: var(--bp-muted2) !important; }
+#bento-page .bento-profile[data-theme] .b-tile { background: var(--bp-surface) !important; border-color: var(--bp-border) !important; }
+#bento-page .bento-profile[data-theme] .b-tile:hover { border-color: color-mix(in srgb, var(--bp-accent) 40%, transparent) !important; }
+#bento-page .bento-profile[data-theme] .b-tile-bio-icon { background: var(--bp-surface3) !important; }
+#bento-page .bento-profile[data-theme] .b-tile-bio-text { color: var(--bp-muted2) !important; }
+#bento-page .bento-profile[data-theme] .b-tile-bio-name { color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-feat-label { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-feat-name { color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-feat-price { color: var(--bp-accent) !important; }
+#bento-page .bento-profile[data-theme] .b-feat-tag { background: var(--bp-accent) !important; }
+#bento-page .bento-profile[data-theme] .b-tile-work-wide { background: var(--bp-work-grad) !important; }
+#bento-page .bento-profile[data-theme] .b-work-label { color: var(--bp-muted2) !important; }
+#bento-page .bento-profile[data-theme] .b-work-title { color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-work-badge { background: color-mix(in srgb, var(--bp-text) 6%, transparent) !important; border-color: color-mix(in srgb, var(--bp-text) 10%, transparent) !important; color: var(--bp-muted2) !important; }
+#bento-page .bento-profile[data-theme] .b-stats-label { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-stat-item + .b-stat-item { border-color: var(--bp-border) !important; }
+#bento-page .bento-profile[data-theme] .b-stat-n { color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-stat-l { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-links-label { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-link-mini { background: var(--bp-surface2) !important; color: var(--bp-muted2) !important; }
+#bento-page .bento-profile[data-theme] .b-links-more { color: var(--bp-accent) !important; }
+#bento-page .bento-profile[data-theme] .b-section-title { color: var(--bp-muted2) !important; }
+#bento-page .bento-profile[data-theme] .b-section-count { color: var(--bp-muted) !important; background: var(--bp-surface2) !important; border-color: var(--bp-border) !important; }
+#bento-page .bento-profile[data-theme] .b-product { background: var(--bp-surface) !important; border-color: var(--bp-border) !important; color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-product-img { background: var(--bp-surface2) !important; }
+#bento-page .bento-profile[data-theme] .b-product-price { color: var(--bp-accent) !important; }
+#bento-page .bento-profile[data-theme] .b-work-item { background: var(--bp-surface) !important; border-color: var(--bp-border) !important; }
+#bento-page .bento-profile[data-theme] .b-work-thumb { background: var(--bp-surface2) !important; }
+#bento-page .bento-profile[data-theme] .b-work-name { color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-work-sub { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-work-tag { color: var(--bp-accent) !important; background: var(--bp-accent-glow) !important; border-color: color-mix(in srgb, var(--bp-accent) 25%, transparent) !important; }
+#bento-page .bento-profile[data-theme] .b-link-item { background: var(--bp-surface) !important; border-color: var(--bp-border) !important; color: var(--bp-text) !important; }
+#bento-page .bento-profile[data-theme] .b-link-icon { background: var(--bp-surface2) !important; }
+#bento-page .bento-profile[data-theme] .b-link-url { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-link-arr { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-footer { color: var(--bp-muted) !important; }
+#bento-page .bento-profile[data-theme] .b-footer span { color: var(--bp-accent) !important; }
+
+/* ══════════════════════════════
+   BENTO THEME PICKER UI (in editor panel)
+══════════════════════════════ */
+#bento-page .theme-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+#bento-page .theme-card {
   border-radius: 12px;
-  padding: 14px 16px;
-  border: 2px solid var(--border);
+  border: 2px solid transparent;
+  overflow: hidden;
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s;
+  position: relative;
 }
-.bento-theme-card:hover { border-color: var(--border2); transform: scale(1.01); }
-.bento-theme-card.selected { border-color: var(--accent) !important; }
-.btheme-label { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-.btheme-sub { font-size: 0.72rem; color: var(--muted2); }
-.btheme-check { position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 10px; display: none; align-items: center; justify-content: center; }
-.bento-theme-card.selected .btheme-check { display: flex; }
+#bento-page .theme-card:hover { transform: scale(1.02); }
+#bento-page .theme-card.selected { border-color: var(--accent) !important; }
+#bento-page .theme-preview-swatch {
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  position: relative;
+}
+#bento-page .theme-swatch-dots { display: flex; gap: 4px; }
+#bento-page .theme-swatch-dots span { width: 10px; height: 10px; border-radius: 50%; }
+#bento-page .theme-card-label { font-size: 0.62rem; font-weight: 600; text-align: center; padding: 5px 6px 7px; letter-spacing: 0.1px; }
+#bento-page .theme-card-tag { position: absolute; top: 5px; right: 6px; font-size: 0.5rem; padding: 1px 5px; border-radius: 100px; font-weight: 700; letter-spacing: 0.3px; opacity: 0.85; text-transform: uppercase; }
+#bento-page .theme-selected-check { position: absolute; top: 4px; left: 6px; font-size: 0.7rem; opacity: 0; }
+#bento-page .theme-card.selected .theme-selected-check { opacity: 1; }
 
 </style>
 </head>
@@ -3697,7 +3805,7 @@ function bentoRender() {
   const linksHTML=s.links.length>0?s.links.map(l=>`<a class="b-link-item" href="${l.url||'#'}" target="_blank"><div class="b-link-icon">🔗</div><div class="b-link-info"><div class="b-link-name">${l.name||'Link'}</div><div class="b-link-url">${l.url||''}</div></div><div class="b-link-arr">›</div></a>`).join(''):`<div class="b-empty">No links yet.</div>`;
   const workHTML=s.work.length>0?s.work.map(w=>`<div class="b-work-item" ${w.videoUrl?`onclick="window.open('${w.videoUrl}','_blank')" style="cursor:pointer;"`:''}><div class="b-work-thumb">${w.coverSrc?`<img src="${w.coverSrc}">`:(w.emoji||'💼')}${w.videoUrl?`<div class="play-badge">▶</div>`:''}</div><div class="b-work-info"><div class="b-work-name">${w.name||'Project'}</div><div class="b-work-sub">${w.sub||''}</div></div>${w.tag?`<div class="b-work-tag">${w.tag}</div>`:''}</div>`).join(''):`<div class="b-empty">No projects yet.</div>`;
 
-  sc.innerHTML=`<div class="bento-profile">
+  sc.innerHTML=`<div class="bento-profile" data-theme="${currentBentoTheme}">
     <div class="b-hero"><div class="b-hero-namebg"><div class="b-name-ghost">${ghost1}</div><div class="b-name-ghost l2">${ghost2}</div></div><div class="b-avatar-wrap"><div class="b-avatar">${avatarHTML}</div></div></div>
     <div class="b-socials">${socialsHTML}</div>
     <div class="b-grid">
@@ -3714,30 +3822,25 @@ function bentoRender() {
   </div>`;
 }
 
-const bentoThemes = {
-  default: { bg: '#07080c', surface: '#10121a', surface2: '#181c28', surface3: '#1e2233', accent: '#7c6aff', text: '#eeedf5' },
-  blossom: { bg: '#0d0509', surface: '#170a12', surface2: '#200e1b', surface3: '#271224', accent: '#e06aad', text: '#f5edee' },
-  sakura:  { bg: '#0a050d', surface: '#14091a', surface2: '#1c0e24', surface3: '#22132b', accent: '#d06acf', text: '#f3edf5' },
-  carbon:  { bg: '#080808', surface: '#111111', surface2: '#181818', surface3: '#1e1e1e', accent: '#4ade80', text: '#edf5ee' },
-  ocean:   { bg: '#03080f', surface: '#07101e', surface2: '#0c182a', surface3: '#101f34', accent: '#38bdf8', text: '#edf3f5' },
+const bentoThemeNames = {
+  default:  '✦ Deep Space (Default)',
+  rose:     '🌸 Rose Petal',
+  lavender: '🌙 Lavender Dream',
+  ocean:    '🌊 Ocean Dark',
+  carbon:   '🔥 Carbon Fire',
 };
 
-function bentoSetTheme(themeId, el) {
-  bentoState.theme = themeId;
-  // Update selected state on cards
-  document.querySelectorAll('.bento-theme-card').forEach(c => c.classList.remove('selected'));
+let currentBentoTheme = 'default';
+
+function bentoSetTheme(theme, el) {
+  currentBentoTheme = theme;
+  bentoState.theme = theme;
+  document.querySelectorAll('#bento-theme-grid .theme-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
-  // Apply CSS vars to bento-page
-  const bp = document.getElementById('bento-page');
-  const t = bentoThemes[themeId] || bentoThemes.default;
-  bp.style.setProperty('--bg', t.bg);
-  bp.style.setProperty('--surface', t.surface);
-  bp.style.setProperty('--surface2', t.surface2);
-  bp.style.setProperty('--surface3', t.surface3);
-  bp.style.setProperty('--accent', t.accent);
-  bp.style.setProperty('--text', t.text);
   bentoRender();
-  bentoShowToast('✦ Theme changed!');
+  const label = document.getElementById('bento-current-theme-name');
+  if (label) label.textContent = bentoThemeNames[theme] || theme;
+  bentoShowToast('🎨 ' + (bentoThemeNames[theme] || theme) + ' applied!');
 }
 
 function bentoCopyLink() {
@@ -3851,46 +3954,84 @@ function bentoShowToast(msg) {
 
         <!-- THEME TAB -->
         <div class="e-panel" id="bento-panel-theme">
-          <div class="e-section-title" style="margin-bottom:6px;">Choose Theme</div>
-          <div style="font-size:0.72rem;color:var(--muted2);margin-bottom:18px;line-height:1.5;">Apni profile ka vibe set karo — feminine, masculine, ya neutral.</div>
+          <div class="e-section-title">Choose Theme</div>
+          <div style="font-size:0.72rem;color:var(--muted2);margin-bottom:14px;line-height:1.5;">Theme sirf preview par apply hoti hai. Panel ka design nahi badlega.</div>
 
-          <!-- Default -->
-          <div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:10px;">✦ Default</div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-            <div class="bento-theme-card selected" id="btheme-default" onclick="bentoSetTheme('default',this)" style="background:linear-gradient(135deg,#07080c,#10121a);border:2px solid var(--accent);">
-              <div class="btheme-label">Dark Night</div>
-              <div class="btheme-sub">Classic deep dark — suits everyone</div>
-              <div class="btheme-check">✓</div>
+          <div class="theme-grid" id="bento-theme-grid">
+            <!-- Default -->
+            <div class="theme-card selected" data-theme="default" onclick="bentoSetTheme('default',this)">
+              <div class="theme-preview-swatch" style="background:linear-gradient(135deg,#07080c,#10121a);">
+                <div class="theme-selected-check">✦</div>
+                <div class="theme-swatch-dots">
+                  <span style="background:#7c6aff;"></span>
+                  <span style="background:#181c28;border:1px solid rgba(255,255,255,0.15);"></span>
+                  <span style="background:#eeedf5;opacity:0.3;"></span>
+                </div>
+              </div>
+              <div class="theme-card-label" style="background:#10121a;color:#eeedf5;">Deep Space</div>
+            </div>
+
+            <!-- Rose Petal - Girls -->
+            <div class="theme-card" data-theme="rose" onclick="bentoSetTheme('rose',this)">
+              <div class="theme-preview-swatch" style="background:linear-gradient(135deg,#fdf2f5,#ffe0ea);">
+                <div class="theme-card-tag" style="background:#e8476a;color:#fff;">Girls</div>
+                <div class="theme-selected-check" style="color:#e8476a;">✦</div>
+                <div class="theme-swatch-dots">
+                  <span style="background:#e8476a;"></span>
+                  <span style="background:#fce4eb;border:1px solid rgba(200,60,90,0.2);"></span>
+                  <span style="background:#2d1018;opacity:0.4;"></span>
+                </div>
+              </div>
+              <div class="theme-card-label" style="background:#fff0f3;color:#2d1018;">🌸 Rose Petal</div>
+            </div>
+
+            <!-- Lavender Dream - Girls -->
+            <div class="theme-card" data-theme="lavender" onclick="bentoSetTheme('lavender',this)">
+              <div class="theme-preview-swatch" style="background:linear-gradient(135deg,#f5f0ff,#e0d3fa);">
+                <div class="theme-card-tag" style="background:#8b5cf6;color:#fff;">Girls</div>
+                <div class="theme-selected-check" style="color:#8b5cf6;">✦</div>
+                <div class="theme-swatch-dots">
+                  <span style="background:#8b5cf6;"></span>
+                  <span style="background:#ede4ff;border:1px solid rgba(120,60,210,0.2);"></span>
+                  <span style="background:#1e0d3a;opacity:0.35;"></span>
+                </div>
+              </div>
+              <div class="theme-card-label" style="background:#ede4ff;color:#1e0d3a;">🌙 Lavender Dream</div>
+            </div>
+
+            <!-- Ocean Dark - Boys -->
+            <div class="theme-card" data-theme="ocean" onclick="bentoSetTheme('ocean',this)">
+              <div class="theme-preview-swatch" style="background:linear-gradient(135deg,#040d1a,#071428);">
+                <div class="theme-card-tag" style="background:#00b4ff;color:#040d1a;">Boys</div>
+                <div class="theme-selected-check" style="color:#00b4ff;">✦</div>
+                <div class="theme-swatch-dots">
+                  <span style="background:#00b4ff;"></span>
+                  <span style="background:#0a1f3c;border:1px solid rgba(0,180,255,0.18);"></span>
+                  <span style="background:#e0f4ff;opacity:0.3;"></span>
+                </div>
+              </div>
+              <div class="theme-card-label" style="background:#071428;color:#e0f4ff;">🌊 Ocean Dark</div>
+            </div>
+
+            <!-- Carbon Fire - Boys -->
+            <div class="theme-card" data-theme="carbon" onclick="bentoSetTheme('carbon',this)">
+              <div class="theme-preview-swatch" style="background:linear-gradient(135deg,#0c0c0c,#1e1e1e);">
+                <div class="theme-card-tag" style="background:#ff6400;color:#fff;">Boys</div>
+                <div class="theme-selected-check" style="color:#ff6400;">✦</div>
+                <div class="theme-swatch-dots">
+                  <span style="background:#ff6400;"></span>
+                  <span style="background:#1e1e1e;border:1px solid rgba(255,100,0,0.2);"></span>
+                  <span style="background:#f5f0eb;opacity:0.3;"></span>
+                </div>
+              </div>
+              <div class="theme-card-label" style="background:#161616;color:#f5f0eb;">🔥 Carbon Fire</div>
             </div>
           </div>
 
-          <!-- Girls ke liye -->
-          <div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:10px;">🌸 Girls ke liye</div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-            <div class="bento-theme-card" id="btheme-blossom" onclick="bentoSetTheme('blossom',this)" style="background:linear-gradient(135deg,#2a0a1a,#1a0a2a,#2a0a20);">
-              <div class="btheme-label">Blossom</div>
-              <div class="btheme-sub">Rose × Violet — soft aur romantic</div>
-              <div class="btheme-check">✓</div>
-            </div>
-            <div class="bento-theme-card" id="btheme-sakura" onclick="bentoSetTheme('sakura',this)" style="background:linear-gradient(135deg,#1a0a20,#2a0a18,#0a1a20);">
-              <div class="btheme-label">Sakura</div>
-              <div class="btheme-sub">Pink × Teal — vibrant aur dreamy</div>
-              <div class="btheme-check">✓</div>
-            </div>
-          </div>
-
-          <!-- Boys ke liye -->
-          <div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:10px;">⚡ Boys ke liye</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div class="bento-theme-card" id="btheme-carbon" onclick="bentoSetTheme('carbon',this)" style="background:linear-gradient(135deg,#0a0a0a,#111118,#0a100a);">
-              <div class="btheme-label">Carbon</div>
-              <div class="btheme-sub">Black × Green — sleek aur bold</div>
-              <div class="btheme-check">✓</div>
-            </div>
-            <div class="bento-theme-card" id="btheme-ocean" onclick="bentoSetTheme('ocean',this)" style="background:linear-gradient(135deg,#050e1a,#081828,#050a14);">
-              <div class="btheme-label">Ocean</div>
-              <div class="btheme-sub">Navy × Cyan — cool aur professional</div>
-              <div class="btheme-check">✓</div>
+          <div style="margin-top:18px;padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+            <div style="font-size:0.65rem;color:var(--muted2);line-height:1.6;">
+              <div style="font-weight:600;color:var(--text);margin-bottom:4px;">Current Theme</div>
+              <div id="bento-current-theme-name" style="color:var(--accent);font-weight:600;">✦ Deep Space (Default)</div>
             </div>
           </div>
         </div>
